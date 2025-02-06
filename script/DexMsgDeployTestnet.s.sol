@@ -19,13 +19,14 @@ contract DexMsgScript is Script, Constants {
         );
 
         // Mine a salt that will produce a hook address with the correct flags
-        bytes memory constructorArgs = abi.encode(POOLMANAGER);
+        bytes memory constructorArgs = abi.encode(POOLMANAGER_TESTNET);
         (address hookAddress, bytes32 salt) =
             HookMiner.find(CREATE2_DEPLOYER, flags, type(DexMsg).creationCode, constructorArgs);
 
         // Deploy the hook using CREATE2
         vm.broadcast();
-        DexMsg dexMsg = new DexMsg{salt: salt}(IPoolManager(POOLMANAGER));
+        DexMsg dexMsg = new DexMsg{salt: salt}(IPoolManager(POOLMANAGER_TESTNET));
         require(address(dexMsg) == hookAddress, "DexMsg: hook address mismatch");
+        console.log("dexmsg deployed to: ", address(dexMsg));
     }
 }
