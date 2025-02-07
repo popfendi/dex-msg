@@ -43,13 +43,13 @@ contract DexMsg is BaseHook {
         });
     }
 
-    function afterSwap(address sender, PoolKey calldata key, IPoolManager.SwapParams calldata params, BalanceDelta delta, bytes calldata messageData)
+    function afterSwap(address, PoolKey calldata key, IPoolManager.SwapParams calldata params, BalanceDelta delta, bytes calldata messageData)
         external
         override
         returns (bytes4, int128)
     {
         if (messageData.length != 0) {
-            emit SwapMsg(key.toId(), sender, delta.amount0(), delta.amount1(), params.sqrtPriceLimitX96, string(messageData));
+            emit SwapMsg(key.toId(), tx.origin, delta.amount0(), delta.amount1(), params.sqrtPriceLimitX96, string(messageData));
         }
         return (BaseHook.afterSwap.selector, 0);
     }

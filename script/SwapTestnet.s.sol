@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
+import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {PoolSwapTest} from "v4-core/src/test/PoolSwapTest.sol";
 import {TickMath} from "v4-core/src/libraries/TickMath.sol";
@@ -20,13 +21,15 @@ contract SwapScript is Script, Constants, Config {
     // --- Parameters to Configure --- //
     /////////////////////////////////////
 
-    // PoolSwapTest Contract address, default to the anvil address
-    PoolSwapTest swapRouter = PoolSwapTest(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
+    // PoolSwapTest Contract address, unisepiola
+    PoolSwapTest swapRouter = PoolSwapTest(0x9140a78c1A137c7fF1c151EC8231272aF78a99A4);
 
     // --- pool configuration --- //
     // fees paid by swappers that accrue to liquidity providers
     uint24 lpFee = 3000; // 0.30%
     int24 tickSpacing = 60;
+
+
 
     function run() external {
         PoolKey memory pool = PoolKey({
@@ -38,8 +41,8 @@ contract SwapScript is Script, Constants, Config {
         });
 
         // approve tokens to the swap router
-        vm.broadcast();
-        token0.approve(address(swapRouter), type(uint256).max);
+        //vm.broadcast();
+        //token0.approve(address(swapRouter), type(uint256).max);
         vm.broadcast();
         token1.approve(address(swapRouter), type(uint256).max);
 
@@ -49,7 +52,7 @@ contract SwapScript is Script, Constants, Config {
         bool zeroForOne = true;
         IPoolManager.SwapParams memory params = IPoolManager.SwapParams({
             zeroForOne: zeroForOne,
-            amountSpecified: 100e18,
+            amountSpecified: 100000 ether,
             sqrtPriceLimitX96: zeroForOne ? MIN_PRICE_LIMIT : MAX_PRICE_LIMIT // unlimited impact
         });
 
@@ -58,8 +61,8 @@ contract SwapScript is Script, Constants, Config {
         PoolSwapTest.TestSettings memory testSettings =
             PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
 
-        bytes memory hookData = new bytes(0);
+
         vm.broadcast();
-        swapRouter.swap(pool, params, testSettings, hookData);
+        swapRouter.swap{value: 0.001 ether}(pool, params, testSettings, bytes(":)"));
     }
 }
